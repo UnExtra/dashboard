@@ -3,3 +3,26 @@
     margin: 20px auto;
     height: 60px;
 }
+
+.navbar-nav .nav-item.active .nav-link {
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin: 0 5px;
+  }
+  
+  .btn-close {
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
