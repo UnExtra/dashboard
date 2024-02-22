@@ -3,14 +3,6 @@
     margin: 20px auto;
     height: 60px;
 }
-
-.navbar-nav .nav-item.active .nav-link {
-    color: #fff;
-    background-color: #007bff;
-    border-radius: 8px;
-    padding: 10px 20px;
-    margin: 0 5px;
-  }
   
   .btn-close {
     background: none;
@@ -26,3 +18,61 @@
     justify-content: space-between;
     align-items: center;
   }
+
+/* Custom Navbar Link Styles */
+.nav-link {
+    color: black !important; /* Ensures text color is black */
+    width: 120px; /* Adjust based on your preference */
+    text-align: center; /* Centers the text within the link */
+}
+
+.nav-item.active .nav-link {
+    background-color: #FFCC00; /* Active link background */
+    color: black !important; /* Text color for active link */
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.fut-modal-background {
+    height: 800px;
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    background-size: contain; /* Cover the entire size of the container */
+    background-color: red;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinner-custom {
+    display: inline-block;
+    animation: spin 1s linear infinite; /* Adjust timing as needed */
+    font-size: 50px; /* Adjust size as needed */
+}
+
+.player-details-overlay {
+    margin-top: 500px;
+    text-align: center; /* Center the text */
+    color: white;
+
+    h2 {
+        font-size: 50px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    p {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    div {
+        div {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
+        }
+    }
+}

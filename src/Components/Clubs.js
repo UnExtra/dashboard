@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css'; // Core styles
 import 'ag-grid-community/styles/ag-theme-alpine.css'; // Theme
-import { getPlayers } from '../api';
+import {getAllClubs, getPlayers} from '../api';
 import Navbar from './Navbar';
 import futImage from '../fut.png'; // Adjust the path as necessary
 
-const Home = () => {
-    const [players, setPlayers] = useState([]);
+const Clubs = () => {
+    const [clubs, setClubs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
 
     useEffect(() => {
         fetchData();
@@ -20,8 +21,8 @@ const Home = () => {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            const playersList = await getPlayers();
-            setPlayers(playersList);
+            const clubsList = await getAllClubs();
+            setClubs(clubsList);
         } catch (error) {
             console.error('Error fetching players data:', error);
         } finally {
@@ -37,21 +38,16 @@ const Home = () => {
     const columnDefs = [
         { field: 'id', sortable: true, filter: true },
         { field: 'name', sortable: true, filter: true },
-        { field: 'position', sortable: true, filter: true },
-        { field: 'age', sortable: true, filter: true },
-        { field: 'height', sortable: true, filter: true },
-        { field: 'foot', sortable: true, filter: true },
-        { field: 'nationality', sortable: true, filter: true },
-        { field: 'market_value', headerName: 'Market Value', sortable: true, filter: true },
+        { field: 'stadium_name', headerName: 'stadium name', sortable: true, filter: true },
+        { field: 'stadium_seat', headerName: 'stadium seats', sortable: true, filter: true },
     ];
 
-    const handleRowClick = (event) => {
-        console.log('Player data', event.data);
-        setSelectedPlayer(event.data);
+    const handleRowClick = (playerData) => {
+        setSelectedPlayer(playerData);
         setIsModalOpen(true);
     };
 
-    const filterPlayers = (player) => {
+    const filter = (player) => {
         const normalizeString = (str) =>
             str
                 .normalize("NFD")
@@ -69,9 +65,7 @@ const Home = () => {
         );
     };
 
-    const filteredPlayers = players.filter(filterPlayers);
-
-    console.log('selectedPlayer', selectedPlayer);
+    const filtered = clubs.filter(filter);
 
     return (
         <div className="container mt-5">
@@ -95,7 +89,7 @@ const Home = () => {
 
                 ) : (
                     <AgGridReact
-                        rowData={filteredPlayers}
+                        rowData={filtered}
                         columnDefs={columnDefs}
                         domLayout='autoHeight'
                         pagination={true}
@@ -105,32 +99,11 @@ const Home = () => {
                 )}
             </div>
             {isModalOpen && (
-                <div
-                    className="modal"
-                    style={{display: isModalOpen ? 'block' : 'none'}}
-                    tabIndex="-1"
-                    onClick={() => setIsModalOpen(false)}
-                >
-                    <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <div className="modal" style={{display: isModalOpen ? 'block' : 'none'}} tabIndex="-1"
+                     onClick={() => setIsModalOpen(false)}>
+                    <div className="modal-dialog">
                         <div className="fut-modal-background" style={{backgroundImage: `url(${futImage})`}}>
                             <div className="modal-body">
-                                <div className="player-details-overlay">
-                                    <h2>{selectedPlayer.name}</h2>
-                                    <div>
-                                        <div>
-                                            <p>{selectedPlayer.position}</p>
-                                            <p>{selectedPlayer.age} yo</p>
-                                        </div>
-                                        <div>
-                                            <p>{selectedPlayer.height}cm</p>
-                                            <p>foot :{selectedPlayer.foot}</p>
-                                        </div>
-                                        <div>
-                                            <p>{selectedPlayer.marker_value}</p>
-                                            <p>{selectedPlayer.nationality}</p>
-                                        </div>
-                                </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -140,4 +113,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default Clubs;

@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import { searchPlayers, searchLeagues, searchClubs } from "../api";
+import React, {useEffect, useState} from "react";
+import {
+  searchPlayers,
+  searchLeagues,
+  searchClubs,
+  getPlayers,
+  getAllLeagues,
+  getAllClubs,
+  deletePlayer,
+  deletePlayerById
+} from "../api";
 import Navbar from "./Navbar";
 import PlayerTable from "./PlayerTable";
 import ClubTable from "./ClubTable";
@@ -11,6 +20,37 @@ const Admin = () => {
   const [sectionName, setSectionName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [players, setPlayers] = useState([]);
+  const [leagues, setLeagues] = useState([]);
+  const [clubs, setClubs] = useState([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const playersList = await getPlayers();
+      setPlayers(playersList);
+      const leaguesList = await getAllLeagues();
+      setLeagues(leaguesList);
+      const clubsList = await getAllClubs();
+      setClubs(clubsList);
+    } catch (error) {
+      console.error("Error fetching players data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deletePlayer = async (id) => {
+    console.log(`Deleting player with id`, id);
+    const updatedPlayers = [...players].filter(player => player.id !== id);
+    setPlayers(updatedPlayers);
+    await deletePlayerById(id);
+  };
 
   const handleModal = (section) => {
     setSectionName(section);
@@ -67,38 +107,19 @@ const Admin = () => {
                   <tr>
                     <th>#</th>
                     <th>Name</th>
-                    <th>Action</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>League 1</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>League 2</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>League 3</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>League 4</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
+                {leagues.map((league) => (
+                    <tr key={league.id}>
+                      <td>{league.id}</td>
+                      <td>{league.name}</td>
+                      <td>
+                        <button className="btn btn-danger">Delete</button>
+                      </td>
+                    </tr>
+                ))}
                 </tbody>
               </table>
             </div>
@@ -121,38 +142,19 @@ const Admin = () => {
                   <tr>
                     <th>#</th>
                     <th>Name</th>
-                    <th>Action</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Club 1</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Club 2</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>Club 3</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>Club 4</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
+                {clubs.map((club) => (
+                    <tr key={club.id}>
+                      <td>{club.id}</td>
+                      <td>{club.name}</td>
+                      <td>
+                        <button className="btn btn-danger">Delete</button>
+                      </td>
+                    </tr>
+                ))}
                 </tbody>
               </table>
             </div>
@@ -172,41 +174,26 @@ const Admin = () => {
               </div>
               <table className="table">
                 <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Action</th>
-                  </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Position</th>
+                  <th>Market Value</th>
+                  <th></th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Player 1</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Player 2</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>Player 3</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>Player 4</td>
-                    <td>
-                      <button className="btn btn-danger">Delete</button>
-                    </td>
-                  </tr>
+                {players.map((player) => (
+                    <tr key={player.id}>
+                      <td>{player.id}</td>
+                      <td>{player.name}</td>
+                      <td>{player.position}</td>
+                      <td>{player.market_value ? player.market_value : "N/A"}</td>
+                      <td>
+                        <button className="btn btn-danger" onClick={() => deletePlayer(player.id)}>Delete</button>
+                      </td>
+                    </tr>
+                ))}
                 </tbody>
               </table>
             </div>
