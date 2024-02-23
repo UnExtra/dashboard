@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css'; // Core styles
 import 'ag-grid-community/styles/ag-theme-alpine.css'; // Theme
-import { getPlayers } from '../api';
+import {getImagePlayerIdExt, getPlayers} from '../api';
 import Navbar from './Navbar';
 import futImage from '../fut.png'; // Adjust the path as necessary
 
@@ -13,6 +13,8 @@ const Home = () => {
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    console.log('selectedPlayer', selectedPlayer);
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -21,6 +23,7 @@ const Home = () => {
         setIsLoading(true);
         try {
             const playersList = await getPlayers();
+            console.log('PLAYER LIST', playersList);
             setPlayers(playersList);
         } catch (error) {
             console.error('Error fetching players data:', error);
@@ -35,19 +38,44 @@ const Home = () => {
     }
 
     const columnDefs = [
-        { field: 'id', sortable: true, filter: true },
         { field: 'name', sortable: true, filter: true },
         { field: 'position', sortable: true, filter: true },
         { field: 'age', sortable: true, filter: true },
-        { field: 'height', sortable: true, filter: true },
+        { field: 'height', sortable: true, filter: true , valueFormatter: (params) => {
+                return `${(params.value / 100).toFixed(2)}m`;
+            }, },
         { field: 'foot', sortable: true, filter: true },
         { field: 'nationality', sortable: true, filter: true },
-        { field: 'market_value', headerName: 'Market Value', sortable: true, filter: true },
+        { field: 'market_value', headerName: 'Market Value', sortable: true, filter: true, valueFormatter: (params) => {
+                const value = params.value;
+                if (value >= 1000000) {
+                    // Check if it's an exact multiple of a million
+                    if (value % 1000000 === 0) {
+                        return `${value / 1000000}m`; // No decimal place if exact million
+                    } else {
+                        return `${(value / 1000000).toFixed(1)}m`; // One decimal place if not
+                    }
+                } else if (value >= 1000) {
+                    // Check if it's an exact multiple of a thousand
+                    if (value % 1000 === 0) {
+                        return `${value / 1000}k`; // No decimal place if exact thousand
+                    } else {
+                        return `${(value / 1000).toFixed(1)}k`; // One decimal place if not
+                    }
+                } else {
+                    // If value is less than 1000, just return it
+                    return value.toString();
+                }
+            }
+            },
+        { field: 'club.name', headerName: 'Club', sortable: true, filter: true },
+        { field: 'club.league.name', headerName: 'League', sortable: true, filter: true },
     ];
 
-    const handleRowClick = (event) => {
+    const handleRowClick = async (event) => {
         console.log('Player data', event.data);
-        setSelectedPlayer(event.data);
+        const imageUrl = await getImagePlayerIdExt(event.data.external_id)
+        setSelectedPlayer({...event.data, imageUrl});
         setIsModalOpen(true);
     };
 
@@ -69,9 +97,32 @@ const Home = () => {
         );
     };
 
-    const filteredPlayers = players.filter(filterPlayers);
+    let value = 0
+    let height = 0
+    if (selectedPlayer) {
+        height = `${(selectedPlayer.height / 100).toFixed(2)}m`
+        value = selectedPlayer.market_value;
+        if (value >= 1000000) {
+            // Check if it's an exact multiple of a million
+            if (value % 1000000 === 0) {
+                value = `${value / 1000000}m`; // No decimal place if exact million
+            } else {
+                value = `${(value / 1000000).toFixed(1)}m`; // One decimal place if not
+            }
+        } else if (value >= 1000) {
+            // Check if it's an exact multiple of a thousand
+            if (value % 1000 === 0) {
+                value = `${value / 1000}k`; // No decimal place if exact thousand
+            } else {
+                value = `${(value / 1000).toFixed(1)}k`; // One decimal place if not
+            }
+        } else {
+            // If value is less than 1000, just return it
+            value = value.toString();
+        }
+    }
 
-    console.log('selectedPlayer', selectedPlayer);
+    const filteredPlayers = players.filter(filterPlayers);
 
     return (
         <div className="container mt-5">
@@ -109,27 +160,35 @@ const Home = () => {
                     className="modal"
                     style={{display: isModalOpen ? 'block' : 'none'}}
                     tabIndex="-1"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={closeModal}
                 >
                     <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
                         <div className="fut-modal-background" style={{backgroundImage: `url(${futImage})`}}>
                             <div className="modal-body">
                                 <div className="player-details-overlay">
-                                    <h2>{selectedPlayer.name}</h2>
-                                    <div>
-                                        <div>
-                                            <p>{selectedPlayer.position}</p>
-                                            <p>{selectedPlayer.age} yo</p>
+                                        <div className={'photo'}>
+                                            <img src={selectedPlayer.imageUrl} alt={selectedPlayer.name}
+                                                 style={{width: '300px', height: '300px', borderRadius: '50px', marginTop: "30px"}}/>
                                         </div>
-                                        <div>
-                                            <p>{selectedPlayer.height}cm</p>
-                                            <p>foot :{selectedPlayer.foot}</p>
+                                    <div className={'details'}>
+                                        <div className={'name'}>
+                                        <h2>{selectedPlayer.name}</h2>
                                         </div>
-                                        <div>
-                                            <p>{selectedPlayer.marker_value}</p>
-                                            <p>{selectedPlayer.nationality}</p>
+                                        <div className={'other'}>
+                                            <div>
+                                                <p>{selectedPlayer.nationality}</p>
+                                                <p>{selectedPlayer.position}</p>
+                                            </div>
+                                            <div>
+                                                <p>{selectedPlayer.age} 🎂</p>
+                                                <p>{height}</p>
+                                            </div>
+                                            <div>
+                                                <p>{selectedPlayer.foot}🦶</p>
+                                                <p>{value}💰</p>
+                                            </div>
                                         </div>
-                                </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

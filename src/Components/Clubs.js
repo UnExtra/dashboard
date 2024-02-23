@@ -5,6 +5,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css'; // Theme
 import {getAllClubs, getPlayers} from '../api';
 import Navbar from './Navbar';
 import futImage from '../fut.png'; // Adjust the path as necessary
+import { useNavigate } from 'react-router-dom';
 
 const Clubs = () => {
     const [clubs, setClubs] = useState([]);
@@ -12,6 +13,7 @@ const Clubs = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -36,15 +38,28 @@ const Clubs = () => {
     }
 
     const columnDefs = [
-        { field: 'id', sortable: true, filter: true },
-        { field: 'name', sortable: true, filter: true },
-        { field: 'stadium_name', headerName: 'stadium name', sortable: true, filter: true },
-        { field: 'stadium_seat', headerName: 'stadium seats', sortable: true, filter: true },
+        { field: 'name', sortable: true, filter: true, headerName: 'Club Name' },
+        { field: 'stadium_name', headerName: 'Stadium Name', sortable: true, filter: true },
+        { field: 'stadium_seat', headerName: 'Stadium Seats', sortable: true, filter: true },
+        { field: 'avgmarketvalue', headerName: 'Avg Market Value', sortable: true, filter: true,
+            valueFormatter: params => {
+                return new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 0
+                }).format(Math.round(params.value));
+            }
+        },
+        { field: 'totalplayers', headerName: 'Total Players', sortable: true, filter: true },
+        { field: 'forwards', headerName: 'Forwards', sortable: true, filter: true },
+        { field: 'midfields', headerName: 'Midfields', sortable: true, filter: true },
+        { field: 'backs', headerName: 'Backs', sortable: true, filter: true },
+        { field: 'goalkeepers', headerName: 'Goalkeepers', sortable: true, filter: true },
     ];
 
-    const handleRowClick = (playerData) => {
-        setSelectedPlayer(playerData);
-        setIsModalOpen(true);
+
+    const handleRowClick = (event) => {
+        navigate(`/club/${event.data.id}`, { state: { club: event.data } });
     };
 
     const filter = (player) => {
@@ -57,11 +72,7 @@ const Clubs = () => {
         const searchNormalized = normalizeString(searchTerm);
         return (
             normalizeString(player.name).includes(searchNormalized) ||
-            normalizeString(player.position).includes(searchNormalized) ||
-            (player.marketValue &&
-                normalizeString(player.marketValue.toString()).includes(
-                    searchNormalized
-                ))
+            normalizeString(player.stadium_name).includes(searchNormalized)
         );
     };
 
@@ -98,17 +109,6 @@ const Clubs = () => {
                     ></AgGridReact>
                 )}
             </div>
-            {isModalOpen && (
-                <div className="modal" style={{display: isModalOpen ? 'block' : 'none'}} tabIndex="-1"
-                     onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-dialog">
-                        <div className="fut-modal-background" style={{backgroundImage: `url(${futImage})`}}>
-                            <div className="modal-body">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

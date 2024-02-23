@@ -19,14 +19,14 @@ const Navbar = () => {
                   Home
                 </Link>
               </li>
-              <li className={`nav-item ${location.pathname === "/clubs" ? "active" : ""}`}>
-                <Link className="nav-link" to="/clubs">
-                  Clubs
-                </Link>
-              </li>
               <li className={`nav-item ${location.pathname === "/leagues" ? "active" : ""}`}>
                 <Link className="nav-link" to="/leagues">
                   Leagues
+                </Link>
+              </li>
+              <li className={`nav-item ${location.pathname === "/clubs" ? "active" : ""}`}>
+                <Link className="nav-link" to="/clubs">
+                  Clubs
                 </Link>
               </li>
               <li className={`nav-item ${location.pathname === "/admin" ? "active" : ""}`}>

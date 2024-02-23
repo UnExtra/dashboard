@@ -4,7 +4,8 @@ import 'ag-grid-community/styles/ag-grid.css'; // Core styles
 import 'ag-grid-community/styles/ag-theme-alpine.css'; // Theme
 import {getAllClubs, getAllLeagues, getPlayers} from '../api';
 import Navbar from './Navbar';
-import futImage from '../fut.png'; // Adjust the path as necessary
+import futImage from '../fut.png';
+import {useNavigate} from "react-router-dom"; // Adjust the path as necessary
 
 const Leagues = () => {
     const [leagues, setLeagues] = useState([]);
@@ -12,7 +13,7 @@ const Leagues = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchData();
@@ -36,15 +37,41 @@ const Leagues = () => {
     }
 
     const columnDefs = [
-        { field: 'id', sortable: true, filter: true },
         { field: 'name', sortable: true, filter: true },
         { field: 'country', sortable: true, filter: true },
         { field: 'continent', sortable: true, filter: true },
+        // Updated fields with formatting
+        {
+            field: 'avgMarketValue',
+            headerName: 'Average Market Value',
+            sortable: true,
+            filter: true,
+            // Adding cell renderer for formatting
+            cellRenderer: (params) => {
+                const averageMarketValue = Math.round(params.value || 0);
+                return new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                }).format(averageMarketValue);
+            }
+        },
+        {
+            field: 'avgStadiumSeats',
+            headerName: 'Average Stadium Seats',
+            sortable: true,
+            filter: true,
+            // Adding cell renderer for rounding
+            cellRenderer: (params) => Math.round(params.value || 0).toLocaleString()
+        },
+        { field: 'totalClubs', headerName: 'Total Clubs', sortable: true, filter: true },
+        { field: 'totalPlayers', headerName: 'Total Players', sortable: true, filter: true },
     ];
 
-    const handleRowClick = (playerData) => {
-        setSelectedPlayer(playerData);
-        setIsModalOpen(true);
+
+    const handleRowClick = (event) => {
+        navigate(`/league/${event.data.id}`, { state: { league: event.data } });
     };
 
     const filter = (player) => {
@@ -57,11 +84,8 @@ const Leagues = () => {
         const searchNormalized = normalizeString(searchTerm);
         return (
             normalizeString(player.name).includes(searchNormalized) ||
-            normalizeString(player.position).includes(searchNormalized) ||
-            (player.marketValue &&
-                normalizeString(player.marketValue.toString()).includes(
-                    searchNormalized
-                ))
+            normalizeString(player.country).includes(searchNormalized) ||
+            normalizeString(player.continent).includes(searchNormalized)
         );
     };
 
@@ -98,17 +122,6 @@ const Leagues = () => {
                     ></AgGridReact>
                 )}
             </div>
-            {isModalOpen && (
-                <div className="modal" style={{display: isModalOpen ? 'block' : 'none'}} tabIndex="-1"
-                     onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-dialog">
-                        <div className="fut-modal-background" style={{backgroundImage: `url(${futImage})`}}>
-                            <div className="modal-body">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

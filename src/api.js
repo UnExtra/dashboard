@@ -14,6 +14,44 @@ export const getPlayers = async () => {
   return data;
 };
 
+export const getImagePlayerIdExt = async (id) => {
+  try {
+    return "https://cdn-icons-png.flaticon.com/512/5281/5281503.png"
+    const { data } = await axios.get(`https://transfermarkt-api.vercel.app/players/${id}/profile`);
+    return data.imageURL;
+  } catch (error) {
+    return "https://cdn-icons-png.flaticon.com/512/5281/5281503.png"
+  }
+};
+
+export const getPlayerById = async (id) => {
+  const { data } = await axios.get(
+      `http://dev16-kub:8080/players/${id}`
+  );
+  const imageUrl = await getImagePlayerIdExt(data.external_id);
+  return {...data, imageUrl};
+};
+
+export const getPlayersByClubId = async (id) => {
+  const { data } = await axios.get(
+      `http://dev16-kub:8080/clubs/${id}/players`
+  );
+
+  console.log('DATA', data)
+
+  return data;
+};
+
+export const getClubsByLeagueId = async (id) => {
+  const { data } = await axios.get(
+      `http://dev16-kub:8080/leagues/${id}/clubs`
+  );
+
+  console.log('DATA', data)
+
+  return data;
+};
+
 export const deletePlayerById = async (id) => {
   console.log('ID TO DELETE', id);
   await axios.delete(
