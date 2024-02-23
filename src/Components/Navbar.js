@@ -29,11 +29,11 @@ const Navbar = () => {
                   Clubs
                 </Link>
               </li>
-              <li className={`nav-item ${location.pathname === "/admin" ? "active" : ""}`}>
+              {false && <li className={`nav-item ${location.pathname === "/admin" ? "active" : ""}`}>
                 <Link className="nav-link" to="/admin">
                   Admin
                 </Link>
-              </li>
+              </li>}
             </ul>
           </div>
         </div>

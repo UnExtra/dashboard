@@ -6,7 +6,7 @@ export const getPlayers = async () => {
   );
   */
   const { data } = await axios.get(
-      "http://dev16-kub:8080/players"
+      "http://dev39-kub:8080/players"
   );
 
   console.log('DATA', data)
@@ -26,15 +26,22 @@ export const getImagePlayerIdExt = async (id) => {
 
 export const getPlayerById = async (id) => {
   const { data } = await axios.get(
-      `http://dev16-kub:8080/players/${id}`
+      `http://dev39-kub:8080/players/${id}`
   );
   const imageUrl = await getImagePlayerIdExt(data.external_id);
   return {...data, imageUrl};
 };
 
+export const getClubById = async (id) => {
+  const { data } = await axios.get(
+      `http://dev39-kub:8080/clubs/${id}`
+  );
+  return data;
+};
+
 export const getPlayersByClubId = async (id) => {
   const { data } = await axios.get(
-      `http://dev16-kub:8080/clubs/${id}/players`
+      `http://dev39-kub:8080/clubs/${id}/players`
   );
 
   console.log('DATA', data)
@@ -44,7 +51,7 @@ export const getPlayersByClubId = async (id) => {
 
 export const getClubsByLeagueId = async (id) => {
   const { data } = await axios.get(
-      `http://dev16-kub:8080/leagues/${id}/clubs`
+      `http://dev39-kub:8080/leagues/${id}/clubs`
   );
 
   console.log('DATA', data)
@@ -55,13 +62,13 @@ export const getClubsByLeagueId = async (id) => {
 export const deletePlayerById = async (id) => {
   console.log('ID TO DELETE', id);
   await axios.delete(
-      `http://dev16-kub:8080/players/${id}`
+      `http://dev39-kub:8080/players/${id}`
   );
 };
 
 export const getAllLeagues = async () => {
   const { data } = await axios.get(
-      "http://dev16-kub:8080/leagues"
+      "http://dev39-kub:8080/leagues"
   );
 
   return data;
@@ -69,7 +76,7 @@ export const getAllLeagues = async () => {
 
 export const getAllClubs = async () => {
   const { data } = await axios.get(
-      "http://dev16-kub:8080/clubs"
+      "http://dev39-kub:8080/clubs"
   );
 
   return data;

@@ -79,7 +79,17 @@ const ClubDetail = () => {
         maximumFractionDigits: 0,
     }).format(roundedValue);
 
-    console.log('club', club);
+    const mvpValue = mvp && mvp.market_value || 0;
+    const roundedMvpValue = Math.round(mvpValue);
+
+// Format the number as a currency
+    const formattedMvpValue = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        // To display as an integer, we ensure the minimum and maximum fraction digits are set to 0
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(roundedMvpValue);
 
     return (
         <div className="container mt-5">
@@ -137,11 +147,13 @@ const ClubDetail = () => {
                                                                  marginTop: "30px"
                                                              }}/>
                                                     </div>
-                                                    <div className={'details'}>
-                                                        <p style={{fontSize: '30px', fontWeight: 'bold'}}>MVP</p>
-                                                    </div>
-                                                    <div className={'details'}>
-                                                        <p style={{fontSize: '20px', fontWeight: 'bold'}}>{mvp.name}</p>
+                                                    <div>
+                                                        <p style={{fontSize: '20px', fontWeight: 'bold'}}>MVP</p>
+                                                        <p style={{fontSize: '18px', fontWeight: 'bold'}}>{mvp.name}</p>
+                                                        <p style={{
+                                                            fontSize: '16px',
+                                                            fontWeight: 'bold'
+                                                        }}>{formattedMvpValue}</p>
                                                     </div>
                                                 </div>
                                             </div>}
