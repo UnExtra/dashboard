@@ -7,22 +7,16 @@ import {
   Routes,
 } from "react-router-dom";
 import Home from "./Components/Home";
-import Admin from "./Components/Admin";
-import Leagues from "./Components/Leagues";
-import Clubs from "./Components/Clubs";
-import ClubDetail from "./Components/ClubDetail";
-import LeagueDetail from "./Components/LeagueDetail";
+import User from "./Components/User";
+import Statistiques from "./Components/Statistiques";
 
 const AppRouter = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/clubs" element={<Clubs />} />
-        <Route path="/club/:id" element={<ClubDetail />} />
-        <Route path="/leagues" element={<Leagues />} />
-        <Route path="/league/:id" element={<LeagueDetail />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/:id" element={<User />} />
+        <Route path="/statistiques" element={<Statistiques />} />
       </Routes>
     </Router>
   );

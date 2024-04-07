@@ -22,15 +22,20 @@
 /* Custom Navbar Link Styles */
 .nav-link {
     color: black !important; /* Ensures text color is black */
-    width: 120px; /* Adjust based on your preference */
     text-align: center; /* Centers the text within the link */
 }
 
+.nav-item {
+    margin-right: 20px;
+}
+
 .nav-item.active .nav-link {
-    background-color: #FFCC00; /* Active link background */
-    color: black !important; /* Text color for active link */
+    display: inline-block;
+    background-color: #FDBB3B; /* Couleur de fond du lien actif */
+    color: white !important; /* Couleur du texte pour le lien actif */
     font-weight: bold;
     border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ajout de l'ombre */
 }
 
 .fut-modal-background {
@@ -108,4 +113,26 @@
             justify-content: space-around;
         }
     }
+}
+
+/* customCalendarStyles.css */
+.react-calendar {
+  border-radius: 10px; /* Arrondit les angles du calendrier */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* Ajoute une ombre légère pour un effet de profondeur */
+  margin: 0 auto; /* Centre le calendrier si nécessaire */
+}
+
+.react-calendar__navigation button {
+  color: black; /* Change la couleur des boutons de navigation */
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #f76c6c; /* Change la couleur des weekends */
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background: #fdba3b; /* Change la couleur de fond lors du survol ou du focus */
+  color: white; /* Change la couleur du texte lors du survol ou du focus */
+  border-radius: 5px; /* Arrondit les angles des tuiles */
 }

@@ -1,43 +1,66 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import logo from '../logo.png'; // Verify this path is correct
-import './styles.css'; // Ensure this path is correct
+import logo from "../logo.png"; // Verify this path is correct
+import left from "../left.png"; // Verify this path is correct
+import "./styles.css"; // Ensure this path is correct
+import { useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ detail }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container d-flex justify-content-between">
-          <a className="navbar-brand" href="/">
-            <img src={logo} alt="Logo" style={{width: '100px'}}/>
-          </a>
-          <div className="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+      <div className="container d-flex justify-content-between">
+        <a className="navbar-brand" href="/" style={{}}>
+          <img
+            src={logo}
+            alt="Logo"
+            style={{
+              width: "70px",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+            }}
+          />
+        </a>
+        <div
+          className="collapse navbar-collapse justify-content-end"
+          id="navbarSupportedContent"
+        >
+          {detail ? (
+            <div onClick={() => navigate(-1)}>
+              <img
+                src={left}
+                style={{
+                  width: "50px",
+                  marginRight: 20,
+                }}
+              />
+            </div>
+          ) : (
             <ul className="navbar-nav">
-              <li className={`nav-item ${location.pathname === "/" ? "active" : ""}`}>
+              <li
+                className={`nav-item ${
+                  location.pathname === "/" ? "active" : ""
+                }`}
+              >
                 <Link className="nav-link" to="/">
-                  Home
+                  Liste utilisateurs
                 </Link>
               </li>
-              <li className={`nav-item ${location.pathname === "/leagues" ? "active" : ""}`}>
-                <Link className="nav-link" to="/leagues">
-                  Leagues
+              <li
+                className={`nav-item ${
+                  location.pathname === "/leagues" ? "active" : ""
+                }`}
+              >
+                <Link className="nav-link" to="/statistiques">
+                  Statistiques
                 </Link>
               </li>
-              <li className={`nav-item ${location.pathname === "/clubs" ? "active" : ""}`}>
-                <Link className="nav-link" to="/clubs">
-                  Clubs
-                </Link>
-              </li>
-              {false && <li className={`nav-item ${location.pathname === "/admin" ? "active" : ""}`}>
-                <Link className="nav-link" to="/admin">
-                  Admin
-                </Link>
-              </li>}
             </ul>
-          </div>
+          )}
         </div>
-      </nav>
+      </div>
+    </nav>
   );
 };
 
