@@ -98,7 +98,8 @@ const Home = () => {
                 firstName
                 admin
                 lastName
-                isActive
+                isActiveSub
+                isActivePurchase
                 creationTime
                 googlePlaceAddress
                 purchases {
@@ -254,9 +255,16 @@ const Home = () => {
       filter: true,
     },
     {
-      field: "isActive",
+      field: "isActiveSub",
       headerName: "Abonné",
       width: 110,
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "isActivePurchase",
+      headerName: "Achat unique",
+      width: 140,
       sortable: true,
       filter: true,
     },
