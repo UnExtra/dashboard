@@ -10,7 +10,6 @@ import {
   HttpLink,
   split,
   gql,
-  useMutation,
 } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
@@ -20,7 +19,7 @@ import * as animationData from "../loading.json";
 import Lottie from "react-lottie";
 import "react-calendar/dist/Calendar.css";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsersData, clearUsersData } from "../Store/usersSlice";
+import { setUsersData } from "../Store/usersSlice";
 
 const { request } = require("graphql-request");
 
@@ -115,6 +114,7 @@ const User = () => {
   const [conversations, setConversations] = useState([]);
   const [offers, setOffers] = useState([]);
   const [missions, setMissions] = useState([]);
+  const [storeVersion, setStoreVersion] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [selectedMission, setSelectedMission] = useState(null);
@@ -135,15 +135,20 @@ const User = () => {
 
     try {
       const client = createApolloClient();
+
       const { data } = await client.query({
         query: gql`
           query GetInfos($idUser: String, $idCompany: String) {
             user(where: { id: { _eq: $idUser } }) {
+              sendinblue {
+                os
+              }
               missions {
                 active
                 address
                 category
                 city
+                postalCode
                 createdBy
                 datePublication
                 dateStart
@@ -259,7 +264,25 @@ const User = () => {
         },
       });
 
-      if (data.user && data.user[0]) {
+      const { data: store } = await client.query({
+        query: gql`
+          query GetVersionInfos {
+            versionInfos {
+              platform
+              version
+            }
+          }
+        `,
+      });
+
+      if (data.user && data.user[0] && data.user[0].sendinblue.os) {
+        if (data.user[0].sendinblue) {
+          const storeV = store.versionInfos.filter(
+            (x) => x.platform == data.user[0].sendinblue.os
+          );
+          setStoreVersion(storeV[0].version);
+        }
+
         if (data.user[0].missions) {
           console.log("data.user.missions", data.user[0].missions);
 
@@ -438,6 +461,11 @@ const User = () => {
             <li className="list-group-item">
               OS: {user.sendinblue ? user.sendinblue.os : "Inconnu"}, Version:{" "}
               {user.sendinblue ? user.sendinblue.version : "Inconnu"}
+              {` (${
+                storeVersion == user.sendinblue.version
+                  ? "à jour"
+                  : "pas à jour"
+              } : ${storeVersion})`}
             </li>
             <li className="list-group-item">
               Compte créé le :{" "}

@@ -16,11 +16,14 @@ import moment from "moment";
 import search from "../search.png";
 import reload from "../reload.png";
 import noPhoto from "../no-photo.png";
+import pushNotification from "../push-notification.png";
 import Lottie from "react-lottie";
 import * as animationData from "../loading.json";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsersData, clearUsersData } from "../Store/usersSlice";
+import { setUsersData } from "../Store/usersSlice";
+import { Modal, Button } from "react-bootstrap";
+import axios from "axios";
 
 export const GRAPHQL_ENDPOINT = "https://unextra.hasura.app/v1/graphql";
 export const GRAPHQL_SUBSCRIPTIONS = "wss://unextra.hasura.app/v1/graphql";
@@ -64,12 +67,18 @@ const createApolloClient = () => {
   });
 };
 const Home = () => {
+  const client = createApolloClient();
+
   const usersData = useSelector((state) => state.users.usersData);
   const [users, setUsers] = useState(usersData);
   const [filteredUsers, setFilteredUsers] = useState(usersData);
+  const [displayedUsers, setDisplayedUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [gridApi, setGridApi] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [notifTexte, setNotifTexte] = useState("");
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -81,7 +90,6 @@ const Home = () => {
     if (usersData.length == 0) {
       setIsLoading(true);
       try {
-        const client = createApolloClient();
         const { data } = await client.query({
           query: gql`
             query {
@@ -148,6 +156,17 @@ const Home = () => {
 
   const clearFilters = () => {
     gridApi?.setFilterModel(null);
+  };
+
+  const fetchDisplayedUsers = () => {
+    if (!gridApi) return;
+
+    const displayedRows = [];
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      displayedRows.push(node.data);
+    });
+    // Ici, vous pouvez mettre à jour l'état avec les données récupérées
+    setDisplayedUsers(displayedRows); // Ou faire autre chose avec les données
   };
 
   const columnDefs = [
@@ -248,6 +267,18 @@ const Home = () => {
       filter: true,
     },
     {
+      field: "postalCode",
+      headerName: "Code postal",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "city",
+      headerName: "Ville",
+      sortable: true,
+      filter: true,
+    },
+    {
       field: "phoneNumber",
       headerName: "Téléphone",
       width: 150,
@@ -341,6 +372,55 @@ const Home = () => {
     setIsLoading(false);
   };
 
+  const openNotifModal = () => {
+    fetchDisplayedUsers();
+    setShowModal(true);
+  };
+
+  const sendNotif = async () => {
+    console.log("send notif", notifTexte);
+
+    let usersIds = displayedUsers.map((x) => x.id);
+
+    const { data } = await client.query({
+      query: gql`
+        query getTokens($userIds: [String!]) {
+          tokens(where: { userId: { _in: $userIds } }) {
+            id
+            token
+          }
+        }
+      `,
+      variables: {
+        userIds: usersIds,
+      },
+    });
+
+    const tokens = data.tokens.map((x) => x.token);
+    const payload = {
+      data: {
+        message: notifTexte,
+        from: "admin",
+        to: { tokens },
+        type: "dashboard",
+      },
+    };
+
+    console.log("PAYLOAD", payload);
+
+    axios
+      .post(
+        "https://europe-west1-unextra-prod.cloudfunctions.net/sendNotificationV2",
+        payload
+      )
+      .then(() => {
+        console.log("sent");
+      })
+      .catch((e) => {
+        console.log("error", e);
+      });
+  };
+
   const filterUsers = (user) => {
     const normalizeString = (str) =>
       str
@@ -372,14 +452,19 @@ const Home = () => {
   return (
     <div className="container mt-5">
       <Navbar />
-      <div className="row mb-3 justify-content-center">
+      <div
+        style={{
+          flexDirection: "row",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <div
-          className="col-md-6"
           style={{
             flexDirection: "row",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
           }}
         >
           <button
@@ -389,11 +474,13 @@ const Home = () => {
               height: 55,
               width: 55,
               backgroundColor: "white",
+              marginRight: 10,
             }}
           >
             <img src={reload} alt="Search" style={{ height: 30, width: 30 }} />
           </button>
           <input
+            style={{ minWidth: 300, marginRight: 10 }}
             type="text"
             className="form-control search-input"
             placeholder="Search..."
@@ -407,9 +494,26 @@ const Home = () => {
               height: 55,
               width: 55,
               backgroundColor: "white",
+              marginRight: 10,
             }}
           >
             <img src={search} alt="Search" style={{ height: 30, width: 30 }} />
+          </button>
+          <button
+            onClick={openNotifModal}
+            style={{
+              borderRadius: 8,
+              height: 55,
+              width: 55,
+              backgroundColor: "white",
+              marginRight: 10,
+            }}
+          >
+            <img
+              src={pushNotification}
+              alt="Search"
+              style={{ height: 30, width: 30 }}
+            />
           </button>
         </div>
       </div>
@@ -441,6 +545,48 @@ const Home = () => {
           ></AgGridReact>
         )}
       </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Envoyer une notification</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Cette notification sera envoyée à tous les utilisateurs filtrés (
+          {`${displayedUsers.length}`})
+          <div>
+            <textarea
+              className="form-control"
+              rows="3"
+              placeholder="Entrez le texte ici..."
+              maxLength="120"
+              style={{ marginTop: "20px" }}
+              value={notifTexte} // Liaison de l'état au champ de texte
+              onChange={(e) => setNotifTexte(e.target.value)} // Mise à jour de l'état lors de la saisie
+            ></textarea>
+            <small
+              style={{
+                fontSize: 12,
+                display: "block",
+                textAlign: "right",
+                marginTop: 5,
+              }}
+              className="text-muted"
+            >
+              Maximum 120 caractères.
+            </small>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Annuler
+          </Button>
+          <Button
+            style={{ backgroundColor: "#FDBB3B", borderColor: "#FDBB3B" }}
+            onClick={sendNotif}
+          >
+            Envoyer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
