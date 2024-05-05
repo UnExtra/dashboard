@@ -77,6 +77,8 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [gridApi, setGridApi] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [loadingNotif, setLoadingNotif] = useState(false);
+  const [notifSent, setNotifSent] = useState(false);
   const [notifTexte, setNotifTexte] = useState("");
 
   const navigate = useNavigate();
@@ -347,8 +349,12 @@ const Home = () => {
         { field: 'club.league.name', headerName: 'League', sortable: true, filter: true }, */
   ];
 
-  const handleRowClick = async (event) => {
-    navigate(`/${event.data.id}`, { state: { user: event.data } });
+  const handleRowClick = (event) => {
+    // Construire l'URL de la page de destination
+    const url = `${window.location.origin}/user?uid=${event.data.id}`;
+
+    // Ouvrir la nouvelle page dans un nouvel onglet
+    window.open(url, "_blank");
   };
 
   const searchUsers = () => {
@@ -375,11 +381,12 @@ const Home = () => {
   const openNotifModal = () => {
     fetchDisplayedUsers();
     setShowModal(true);
+    setNotifSent(false);
+    setNotifTexte("");
   };
 
   const sendNotif = async () => {
-    console.log("send notif", notifTexte);
-
+    setLoadingNotif(true);
     let usersIds = displayedUsers.map((x) => x.id);
 
     const { data } = await client.query({
@@ -397,6 +404,7 @@ const Home = () => {
     });
 
     const tokens = data.tokens.map((x) => x.token);
+    console.log("tokens", tokens);
     const payload = {
       data: {
         message: notifTexte,
@@ -406,19 +414,15 @@ const Home = () => {
       },
     };
 
-    console.log("PAYLOAD", payload);
-
-    axios
-      .post(
+    try {
+      await axios.post(
         "https://europe-west1-unextra-prod.cloudfunctions.net/sendNotificationV2",
         payload
-      )
-      .then(() => {
-        console.log("sent");
-      })
-      .catch((e) => {
-        console.log("error", e);
-      });
+      );
+      setLoadingNotif(false);
+      setNotifSent(true);
+    } catch (error) {}
+    setLoadingNotif(false);
   };
 
   const filterUsers = (user) => {
@@ -576,15 +580,33 @@ const Home = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Annuler
-          </Button>
-          <Button
-            style={{ backgroundColor: "#FDBB3B", borderColor: "#FDBB3B" }}
-            onClick={sendNotif}
-          >
-            Envoyer
-          </Button>
+          {loadingNotif ? (
+            <div className="text-center">
+              <Lottie
+                options={{
+                  loop: true,
+                  autoplay: true,
+                  animationData: animationData,
+                }}
+                height={50}
+                width={50}
+              />
+            </div>
+          ) : notifSent ? (
+            <div>Notification envoyée</div>
+          ) : (
+            <>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Annuler
+              </Button>
+              <Button
+                style={{ backgroundColor: "#FDBB3B", borderColor: "#FDBB3B" }}
+                onClick={sendNotif}
+              >
+                Envoyer
+              </Button>
+            </>
+          )}
         </Modal.Footer>
       </Modal>
     </div>

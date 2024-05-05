@@ -27,7 +27,7 @@ const Navbar = ({ detail }) => {
           id="navbarSupportedContent"
         >
           {detail ? (
-            <div onClick={() => navigate(-1)} style={{ cursor: "pointer" }}>
+            <div onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
               <img
                 src={left}
                 style={{
