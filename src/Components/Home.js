@@ -81,7 +81,6 @@ const Home = () => {
   const [notifSent, setNotifSent] = useState(false);
   const [notifTexte, setNotifTexte] = useState("");
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {

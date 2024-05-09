@@ -9,6 +9,7 @@ import {
 import Home from "./Components/Home";
 import User from "./Components/User";
 import Statistiques from "./Components/Statistiques";
+import Offers from "./Components/Offers";
 
 const AppRouter = () => {
   return (
@@ -16,6 +17,7 @@ const AppRouter = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/:id" element={<User />} />
+        <Route path="/offers" element={<Offers />} />
         <Route path="/statistiques" element={<Statistiques />} />
       </Routes>
     </Router>
