@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import logo from "../logo.png"; // Verify this path is correct
-import left from "../left.png"; // Verify this path is correct
-import "./styles.css"; // Ensure this path is correct
+import logo from "../logo.png"; // Vérifiez que ce chemin est correct
+import left from "../left.png"; // Vérifiez que ce chemin est correct
+import "./styles.css"; // Assurez-vous que ce chemin est correct
 import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ detail }) => {
@@ -12,7 +12,7 @@ const Navbar = ({ detail }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container d-flex justify-content-between">
-        <a className="navbar-brand" href="/" style={{}}>
+        <a className="navbar-brand" href="/">
           <img
             src={logo}
             alt="Logo"
@@ -22,10 +22,19 @@ const Navbar = ({ detail }) => {
             }}
           />
         </a>
-        <div
-          className="collapse navbar-collapse justify-content-end"
-          id="navbarSupportedContent"
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarTogglerDemo02"
+          aria-controls="navbarTogglerDemo02"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
           {detail ? (
             <div onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
               <img
@@ -37,7 +46,7 @@ const Navbar = ({ detail }) => {
               />
             </div>
           ) : (
-            <ul className="navbar-nav">
+            <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
               <li
                 className={`nav-item ${
                   location.pathname === "/" ? "active" : ""
