@@ -46,7 +46,7 @@ const Navbar = ({ detail }) => {
               />
             </div>
           ) : (
-            <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
+            <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
               <li
                 className={`nav-item ${
                   location.pathname === "/" ? "active" : ""

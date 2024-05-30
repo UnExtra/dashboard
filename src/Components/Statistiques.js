@@ -16,6 +16,21 @@ import { useSelector, useDispatch } from "react-redux";
 import Lottie from "react-lottie";
 import * as animationData from "../loading.json";
 import { setUsersData } from "../Store/usersSlice";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+import { database } from "./firebaseConfig";
+import { ref, get, child } from "firebase/database";
+
 export const GRAPHQL_ENDPOINT = "https://unextra.hasura.app/v1/graphql";
 export const GRAPHQL_SUBSCRIPTIONS = "wss://unextra.hasura.app/v1/graphql";
 export const SECRET_KEY = "2tGF4WeLMIOsP/Q/h/VS2cd++EmJzMcb";
@@ -64,6 +79,7 @@ const Statistiques = () => {
   const usersData = useSelector((state) => state.users.usersData);
   const [rowData, setRowData] = useState([]);
   const [jobStats, setJobStats] = useState([]);
+  const [statsAbo, setStatsAbo] = useState([]);
   const [categoryEmployerStats, setCategoryEmployerStats] = useState([]);
   const [activeUserStats, setActiveUserStats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +87,7 @@ const Statistiques = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (usersData.length == 0) {
+    if (usersData.length === 0) {
       fetchData();
     } else {
       const transformedData = transformData(usersData);
@@ -81,7 +97,18 @@ const Statistiques = () => {
       setActiveUserStats(calculateActiveUserStats(usersData));
       setIsLoading(false);
     }
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    const dbRef = ref(database);
+    const snapshot = await get(child(dbRef, "stats"));
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const stats = Object.values(data);
+      setStatsAbo(stats);
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -135,6 +162,7 @@ const Statistiques = () => {
           }
         `,
       });
+      console.log("data.user", data.user.length);
       dispatch(setUsersData(data.user));
       const transformedData = transformData(data.user);
       setRowData(transformedData);
@@ -312,6 +340,40 @@ const Statistiques = () => {
     ];
   }
 
+  const renderLineChart = (data, dataKeys) => (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="week" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {dataKeys.map((key, index) => (
+          <Line
+            key={key}
+            type="monotone"
+            dataKey={key}
+            stroke={["#8884d8", "#82ca9d", "#ffc658"][index]}
+            activeDot={{ r: 8 }}
+          />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+
+  const renderBarChart = (data, dataKey, xKey) => (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey={xKey} />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey={dataKey} fill="#8884d8" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+
   return (
     <div className="container mt-5" style={{ paddingBottom: 200 }}>
       <Navbar detail={false} />
@@ -334,6 +396,12 @@ const Statistiques = () => {
             style={{ width: "100%", marginTop: 30 }}
           >
             <h3>Inscriptions par semaine</h3>
+            {renderLineChart(rowData.slice(0, 10).reverse(), [
+              "total",
+              "extra",
+              "employer",
+            ])}
+            <br />
             <AgGridReact
               rowData={rowData}
               columnDefs={columnDefs}
@@ -351,6 +419,7 @@ const Statistiques = () => {
             }}
           >
             <h3>Classement métiers EXTRA</h3>
+            {renderBarChart(jobStats.slice(0, 30), "count", "job")}
             <AgGridReact
               rowData={jobStats}
               columnDefs={jobColumnDefs}
@@ -368,6 +437,7 @@ const Statistiques = () => {
             }}
           >
             <h3>Classement des Catégories des EMPLOYER</h3>
+            {renderBarChart(categoryEmployerStats, "count", "category")}
             <AgGridReact
               rowData={categoryEmployerStats}
               columnDefs={categoryColumnDefs}
@@ -385,6 +455,7 @@ const Statistiques = () => {
             }}
           >
             <h3>Nombre d'Utilisateurs Actifs</h3>
+            {renderLineChart(statsAbo, ["total", "extra", "employer"])}
             <AgGridReact
               rowData={activeUserStats}
               columnDefs={activeUserColumnDefs}
