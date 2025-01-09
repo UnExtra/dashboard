@@ -34,7 +34,7 @@ const INSERT_PURCHASE = gql`
     $userId: String
     $type: String
     $store: String
-    $limit: bigint
+    $limit: String
   ) {
     insert_purchases(
       objects: { userId: $userId, type: $type, store: $store, limit: $limit }
@@ -61,10 +61,10 @@ const UPDATE_PURCHASE = gql`
 `;
 
 const TOGGLE_ACTIVE = gql`
-  mutation MyMutation($isActive: Boolean, $userId: String) {
+  mutation MyMutation($isActivePurchase: Boolean, $userId: String) {
     update_user(
       where: { id: { _eq: $userId } }
-      _set: { isActive: $isActive }
+      _set: { isActivePurchase: $isActivePurchase }
     ) {
       affected_rows
     }
@@ -361,7 +361,7 @@ const User = () => {
       mutation: TOGGLE_ACTIVE,
       variables: {
         userId: uid,
-        isActive: true,
+        isActivePurchase: true,
       },
     });
 
@@ -415,7 +415,7 @@ const User = () => {
           userId: uid,
           type: "free",
           store: "dashboard",
-          limit,
+          limit: "1738627200000",
         },
       });
     }
