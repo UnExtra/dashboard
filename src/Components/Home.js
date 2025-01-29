@@ -172,7 +172,15 @@ const Home = () => {
 
   const columnDefs = [
     { field: "id", sortable: true, filter: true },
-    { field: "type", sortable: true, filter: true, width: 90 },
+    {
+      field: "type",
+      sortable: true,
+      filter: true,
+      width: 110,
+      cellRenderer: (props) => {
+        return <span>{props.value == "EXTRA" ? "Employé" : "Employeur"}</span>;
+      },
+    },
     {
       field: "creationTime",
       headerName: "Création compte",
