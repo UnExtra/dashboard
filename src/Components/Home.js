@@ -80,6 +80,9 @@ const Home = () => {
   const [loadingNotif, setLoadingNotif] = useState(false);
   const [notifSent, setNotifSent] = useState(false);
   const [notifTexte, setNotifTexte] = useState("");
+  const [showMailModal, setShowMailModal] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [separator, setSeparator] = useState('\n');
 
   const dispatch = useDispatch();
 
@@ -460,6 +463,21 @@ const Home = () => {
     }
   };
 
+  const openMailModal = () => {
+    fetchDisplayedUsers();
+    setShowMailModal(true);
+    setCopySuccess(false);
+  };
+
+  const copyMailUrls = () => {
+    const emails = displayedUsers.map(u => u.email || '').filter(Boolean);
+    const urls = emails.join(separator);
+    navigator.clipboard.writeText(urls).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
+
   return (
     <div className="container mt-5">
       <Navbar />
@@ -525,6 +543,23 @@ const Home = () => {
               alt="Search"
               style={{ height: 30, width: 30 }}
             />
+          </button>
+          <button
+            onClick={openMailModal}
+            style={{
+              borderRadius: 8,
+              height: 55,
+              width: 70,
+              backgroundColor: "white",
+              marginRight: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+            title="Voir toutes les images"
+          >
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FDBB3B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>
           </button>
         </div>
       </div>
@@ -614,6 +649,50 @@ const Home = () => {
               </Button>
             </>
           )}
+        </Modal.Footer>
+      </Modal>
+      <Modal show={showMailModal} onHide={() => setShowMailModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Emails des utilisateurs filtrés ({displayedUsers.length})</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ fontWeight: 500, marginRight: 8 }}>Séparateur :</label>
+            <input
+              type="text"
+              value={separator}
+              onChange={e => setSeparator(e.target.value)}
+              style={{ width: 80, display: 'inline-block', marginRight: 10 }}
+              placeholder="; , ..."
+            />
+            <small className="text-muted">(appliqué entre chaque email)</small>
+          </div>
+          {displayedUsers.length === 0 ? (
+            <div>Aucun utilisateur affiché.</div>
+          ) : (
+            <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+              {displayedUsers.map((user, idx) => (
+                user?.email ? (
+                  <div key={user.id || idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={{ fontSize: 12 }}>{user?.email}</span>
+                  </div>
+                ) : null
+              ))}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowMailModal(false)}>
+            Fermer
+          </Button>
+          <Button
+            style={{ backgroundColor: "#FDBB3B", borderColor: "#FDBB3B" }}
+            onClick={copyMailUrls}
+            disabled={displayedUsers.filter(u => u?.email).length === 0}
+          >
+            Copier tous les emails
+          </Button>
+          {copySuccess && <span style={{ color: 'green', marginLeft: 10 }}>Copié !</span>}
         </Modal.Footer>
       </Modal>
     </div>

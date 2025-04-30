@@ -464,7 +464,7 @@ const User = () => {
           <div className="row">
             <div className="col-md-4">
               <img
-                src={user.picUrl ? user.picUrl : noPhoto}
+                src={user?.picUrl ? user?.picUrl : noPhoto}
                 alt="Profile"
                 className="img-fluid rounded-circle"
                 style={{ height: 300, width: 300, marginTop: 30 }}
