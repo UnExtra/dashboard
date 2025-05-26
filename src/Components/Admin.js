@@ -46,7 +46,6 @@ const Admin = () => {
   };
 
   const deletePlayer = async (id) => {
-    console.log(`Deleting player with id`, id);
     const updatedPlayers = [...players].filter(player => player.id !== id);
     setPlayers(updatedPlayers);
     await deletePlayerById(id);
@@ -60,7 +59,6 @@ const Admin = () => {
 
   const handleSearch = async (type) => {
     try {
-      console.log("type", type);
       let results = [];
       if (type === "player") {
         results = await searchPlayers(searchTerm);
@@ -69,7 +67,6 @@ const Admin = () => {
       } else if (type === "club") {
         results = await searchClubs(searchTerm);
       }
-      console.log("RESULTS", results);
       setSearchResults(results.results);
     } catch (error) {
       console.error("Error searching:", error);
@@ -83,7 +80,6 @@ const Admin = () => {
   };
 
   const addItem = (type, item) => {
-    console.log(`Adding ${type}:`, item);
   };
 
   return (

@@ -7,7 +7,6 @@ import { AgGridReact } from 'ag-grid-react';
 const LeagueDetail = () => {
     const { state } = useLocation();
     const league = state.league; // Assume this is passed via routing
-    console.log('league', league)
     const [clubs, setClubs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [lessValuableClub, setlLessValuableClub] = useState(null);
@@ -26,12 +25,8 @@ const LeagueDetail = () => {
         setlLessValuableClub(lessValuableC);
         setlMostValuableClub(mostValuableC);
 
-        console.log('lessValuableC', lessValuableC);
-        console.log('mostValuableC', mostValuableC);
-
         try {
             const clubsList = await getClubsByLeagueId(league.id);
-            console.log('clubsList', clubsList)
             setClubs(clubsList);
         } catch (error) {
             console.error('Error fetching clubs data:', error);

@@ -414,7 +414,6 @@ const Home = () => {
     });
 
     const tokens = data.tokens.map((x) => x.token);
-    console.log("tokens", tokens);
     const payload = {
       data: {
         message: notifTexte,
@@ -444,22 +443,25 @@ const Home = () => {
 
     const searchNormalized = normalizeString(searchTerm);
 
+    const firstName = user.firstName ? normalizeString(user.firstName) : "";
+    const lastName = user.lastName ? normalizeString(user.lastName) : "";
+    const email = user.email ? normalizeString(user.email) : "";
+    const companyName = user.company && user.company.name ? normalizeString(user.company.name) : "";
+    const city = user.city ? normalizeString(user.city) : "";
+
     if (
-      user &&
-      user.firstName &&
-      user.lastName &&
-      user.firstName &&
-      user.email &&
-      user.city
+      user 
     ) {
       return user.company && user.company.name
-        ? user.firstName.includes(searchNormalized) ||
-            user.lastName.includes(searchNormalized) ||
-            user.email.includes(searchNormalized) ||
-            user.company.name.includes(searchNormalized)
-        : user.firstName.includes(searchNormalized) ||
-            user.lastName.includes(searchNormalized) ||
-            user.email.includes(searchNormalized);
+        ? firstName.includes(searchNormalized) ||
+            lastName.includes(searchNormalized) ||
+            email.includes(searchNormalized) ||
+            companyName.includes(searchNormalized) ||
+            city.includes(searchNormalized)
+        : firstName.includes(searchNormalized) ||
+            lastName.includes(searchNormalized) ||
+            email.includes(searchNormalized) ||
+            city.includes(searchNormalized);
     }
   };
 

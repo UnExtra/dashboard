@@ -435,7 +435,6 @@ const User = () => {
       }
       setIsLoading(false);
     } else {
-      console.log("Erreur");
       setIsLoading(false);
     }
   };

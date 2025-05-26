@@ -162,7 +162,6 @@ const Statistiques = () => {
           }
         `,
       });
-      console.log("data.user", data.user.length);
       dispatch(setUsersData(data.user));
       const transformedData = transformData(data.user);
       setRowData(transformedData);
